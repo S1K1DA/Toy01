@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -56,8 +57,18 @@ public class UserController {
 
     // 마이페이지 조회 API
     @GetMapping("/mypage")
-    public ResponseEntity<UserResponseDto> getMyPage(@AuthenticationPrincipal UserDetails userDetails) {
-        UserResponseDto userProfile = userService.getUserProfile(userDetails.getUsername());
+    public ResponseEntity<?> getMyPage(HttpServletRequest request) {
+        HttpSession session = request.getSession(false); // ❗ 세션이 없으면 null 반환
+        if (session == null || session.getAttribute("email") == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("로그인이 필요합니다.");
+        }
+
+        // 세션에서 저장된 이메일 가져오기
+        String email = (String) session.getAttribute("email");
+        System.out.println("✅ [DEBUG] 로그인한 사용자 이메일: " + email);
+
+        // 세션에서 가져온 이메일을 기반으로 유저 조회
+        UserResponseDto userProfile = userService.getUserProfile(email);
         return ResponseEntity.ok(userProfile);
     }
 
