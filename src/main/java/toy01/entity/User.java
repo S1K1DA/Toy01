@@ -30,4 +30,18 @@ public class User {
     @Column(nullable = false, unique = true)
     private String nickname;
 
+    private String profileImage;
+    private String profileImagePath;
+
+    public void updateProfile(String nickname, String email, String profileImage, String profileImagePath) {
+        this.nickname = nickname;
+        this.email = email;
+        this.profileImage = profileImage;
+        this.profileImagePath = profileImagePath;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
 }

@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import toy01.dto.UserRequestDto;
-import toy01.dto.UserResponseDto;
+import toy01.dto.request.UserRequestDto;
+import toy01.dto.response.UserResponseDto;
 import toy01.entity.User;
 import toy01.repository.UserRepository;
 
@@ -45,6 +45,23 @@ public class UserService {
         }
 
         return true;
+    }
+
+    // 마이페이지 정보 조회
+    public UserResponseDto getUserProfile(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+        return new UserResponseDto(user);
+    }
+
+    // 마이페이지 정보 수정
+    @Transactional
+    public void updateProfile(String email, UserRequestDto userRequestDto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        user.updateProfile(userRequestDto.getNickname(), userRequestDto.getEmail(),
+                userRequestDto.getProfileImage(), userRequestDto.getProfileImagePath());
     }
 
 }

@@ -1,4 +1,4 @@
-package toy01.dto;
+package toy01.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -32,6 +32,9 @@ public class UserRequestDto {
     @NotBlank(message = "닉네임은 필수 입력값입니다.")
     private String nickname;
 
+    private String profileImage;
+    private String profileImagePath;
+
     // DTO → Entity 변환 메서드 추가
     public User toEntity(String encodedPassword) {
         return User.builder()
@@ -39,6 +42,8 @@ public class UserRequestDto {
                 .password(encodedPassword) // 암호화된 비밀번호 저장
                 .name(this.name)
                 .nickname(this.nickname)
+                .profileImage(this.profileImage)
+                .profileImagePath(this.profileImagePath)
                 .build();
     }
 }

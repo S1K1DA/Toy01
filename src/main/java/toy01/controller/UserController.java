@@ -5,9 +5,11 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import toy01.dto.UserRequestDto;
-import toy01.dto.UserResponseDto;
+import toy01.dto.request.UserRequestDto;
+import toy01.dto.response.UserResponseDto;
 import toy01.service.UserService;
 
 @RestController
@@ -52,4 +54,20 @@ public class UserController {
         }
     }
 
+    // 마이페이지 조회 API
+    @GetMapping("/mypage")
+    public ResponseEntity<UserResponseDto> getMyPage(@AuthenticationPrincipal UserDetails userDetails) {
+        UserResponseDto userProfile = userService.getUserProfile(userDetails.getUsername());
+        return ResponseEntity.ok(userProfile);
+    }
+
+    // 마이페이지 수정 API
+    @PutMapping("/mypage/update")
+    public ResponseEntity<String> updateProfile(
+            @RequestBody UserRequestDto userRequestDto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        userService.updateProfile(userDetails.getUsername(), userRequestDto);
+        return ResponseEntity.ok("프로필이 수정되었습니다.");
+    }
 }
