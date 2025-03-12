@@ -31,17 +31,12 @@ public class User {
     private String nickname;
 
     private String profileImage;
-    private String profileImagePath;
 
-    public void updateProfile(String nickname, String email, String profileImage, String profileImagePath) {
+    public void updateProfile(String nickname, String email,String name, String profileImage) {
         this.nickname = nickname;
         this.email = email;
+        this.name = name;
         this.profileImage = profileImage;
-        this.profileImagePath = profileImagePath;
-    }
-
-    public void updatePassword(String password) {
-        this.password = password;
     }
 
 }

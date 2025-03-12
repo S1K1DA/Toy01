@@ -4,10 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import toy01.dto.request.UserRequestDto;
 import toy01.dto.response.UserResponseDto;
 import toy01.entity.User;
 import toy01.repository.UserRepository;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +21,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
     @Transactional
     public UserResponseDto registerUser(UserRequestDto requestDto) {
@@ -54,14 +61,31 @@ public class UserService {
         return new UserResponseDto(user);
     }
 
-    // 마이페이지 정보 수정
     @Transactional
-    public void updateProfile(String email, UserRequestDto userRequestDto) {
-        User user = userRepository.findByEmail(email)
+    public void updateUserProfile(String currentEmail,String newEmail, String nickname, String name, MultipartFile profileImage) {
+        User user = userRepository.findByEmail(currentEmail)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
 
-        user.updateProfile(userRequestDto.getNickname(), userRequestDto.getEmail(),
-                userRequestDto.getProfileImage(), userRequestDto.getProfileImagePath());
+        String newFileName = user.getProfileImage(); // 기존 파일 유지
+
+        if (profileImage != null && !profileImage.isEmpty()) {
+            try {
+                // 기존 이미지 삭제
+                if (newFileName != null) {
+                    Files.deleteIfExists(Paths.get(UPLOAD_DIR + newFileName));
+                }
+
+                // 새 이미지 저장
+                newFileName = System.currentTimeMillis() + "_" + profileImage.getOriginalFilename();
+                Path targetPath = Paths.get(UPLOAD_DIR + newFileName);
+                Files.copy(profileImage.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+            } catch (Exception e) {
+                throw new RuntimeException("프로필 이미지 저장 실패: " + e.getMessage());
+            }
+        }
+
+        user.updateProfile(nickname, newEmail, name, newFileName);
+        userRepository.save(user);
     }
 
 }

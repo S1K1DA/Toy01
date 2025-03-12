@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import toy01.dto.request.UserRequestDto;
 import toy01.dto.response.UserResponseDto;
 import toy01.service.UserService;
@@ -58,7 +59,7 @@ public class UserController {
     // 마이페이지 조회 API
     @GetMapping("/mypage")
     public ResponseEntity<?> getMyPage(HttpServletRequest request) {
-        HttpSession session = request.getSession(false); // ❗ 세션이 없으면 null 반환
+        HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("email") == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("로그인이 필요합니다.");
         }
@@ -72,13 +73,29 @@ public class UserController {
         return ResponseEntity.ok(userProfile);
     }
 
-    // 마이페이지 수정 API
-    @PutMapping("/mypage/update")
+    @PostMapping("/update-profile")
     public ResponseEntity<String> updateProfile(
-            @RequestBody UserRequestDto userRequestDto,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            HttpServletRequest request,
+            @RequestParam("nickname") String nickname,
+            @RequestParam("email") String newEmail,
+            @RequestParam("name") String name,
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage
+    ) {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("email") == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("로그인이 필요합니다.");
+        }
 
-        userService.updateProfile(userDetails.getUsername(), userRequestDto);
-        return ResponseEntity.ok("프로필이 수정되었습니다.");
+        // 세션에서 이메일 가져오기
+        String currentEmail = (String) session.getAttribute("email");
+
+        // 유저 정보 업데이트
+        userService.updateUserProfile(currentEmail, newEmail, nickname, name, profileImage);
+
+        // 세션 이메일 변경
+        session.removeAttribute("email");
+        session.setAttribute("email", newEmail);
+
+        return ResponseEntity.ok("프로필 정보가 성공적으로 수정되었습니다.");
     }
 }

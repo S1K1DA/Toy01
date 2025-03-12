@@ -8,7 +8,6 @@ public class UserResponseDto {
     private String email;
     private String name;
     private String nickname;
-    private String profileImage;
     private String profileImagePath;
 
     // Entity → DTO 변환
@@ -16,7 +15,11 @@ public class UserResponseDto {
         this.email = user.getEmail();
         this.name = user.getName();
         this.nickname = user.getNickname();
-        this.profileImage = user.getProfileImage();
-        this.profileImagePath = user.getProfileImagePath();
+
+
+        // 정적 파일 URL 생성 (profileImagePath를 URL로 변환)
+        this.profileImagePath = user.getProfileImage() != null
+                ? "/uploads/" + user.getProfileImage()
+                : "default-profile.jpg";
     }
 }

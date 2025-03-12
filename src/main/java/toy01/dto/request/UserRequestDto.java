@@ -33,7 +33,6 @@ public class UserRequestDto {
     private String nickname;
 
     private String profileImage;
-    private String profileImagePath;
 
     // DTO → Entity 변환 메서드 추가
     public User toEntity(String encodedPassword) {
@@ -43,7 +42,6 @@ public class UserRequestDto {
                 .name(this.name)
                 .nickname(this.nickname)
                 .profileImage(this.profileImage)
-                .profileImagePath(this.profileImagePath)
                 .build();
     }
 }
