@@ -87,5 +87,18 @@ public class UserService {
         user.updateProfile(nickname, newEmail, name, newFileName);
         userRepository.save(user);
     }
+    @Transactional
+    public boolean updatePassword(String email, String currentPassword, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            return false;
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return true;
+    }
 
 }

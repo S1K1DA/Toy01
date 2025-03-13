@@ -6,10 +6,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import toy01.dto.request.PasswordUpdateRequest;
 import toy01.dto.request.UserRequestDto;
 import toy01.dto.response.UserResponseDto;
 import toy01.service.UserService;
@@ -17,7 +16,6 @@ import toy01.service.UserService;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-//@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     private final UserService userService;
@@ -98,4 +96,21 @@ public class UserController {
 
         return ResponseEntity.ok("프로필 정보가 성공적으로 수정되었습니다.");
     }
-}
+
+
+        @PostMapping("/update-password")
+        public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateRequest request, HttpSession session) {
+
+        String email = (String) session.getAttribute("email"); // 현재 로그인한 사용자의 이메일
+            if (email == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+            }
+
+            boolean isUpdated = userService.updatePassword(email, request.getCurrentPassword(), request.getNewPassword());
+            if (isUpdated) {
+                return ResponseEntity.ok("비밀번호 변경 성공");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("현재 비밀번호가 올바르지 않습니다.");
+            }
+        }
+    }
