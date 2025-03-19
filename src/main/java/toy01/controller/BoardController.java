@@ -32,7 +32,7 @@ public class BoardController {
             return ResponseEntity.status(400).body("유저 정보가 올바르지 않습니다.");
         }
 
-        // 🔥 userId 설정 후 저장
+        // userId 설정 후 저장
         Long boardNo = boardService.createBoard(requestDto, userId);
         return ResponseEntity.ok(boardNo);
     }

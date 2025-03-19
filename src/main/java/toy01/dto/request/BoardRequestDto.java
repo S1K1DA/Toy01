@@ -4,12 +4,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import toy01.entity.Board;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 public class BoardRequestDto {
     private String title;
     private String content;
     private String category;
+    private List<String> tags;
 
     public Board toEntity(Long userId) {
         return Board.builder()
@@ -17,8 +20,9 @@ public class BoardRequestDto {
                 .content(content)
                 .category(category)
                 .userId(userId)
-                .views(0)   // 기본 조회수 0
-                .likes(0)   // 기본 좋아요 0
+                .tags(String.join(",",tags))
+                .views(0)
+                .likes(0)
                 .build();
     }
 }

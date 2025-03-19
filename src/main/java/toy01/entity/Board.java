@@ -38,6 +38,9 @@ public class Board {
     @Column(nullable = false)
     private int likes = 0;
 
+    @Column
+    private String tags;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

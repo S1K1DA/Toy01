@@ -30,6 +30,7 @@ public class BoardService {
                 .content(requestDto.getContent())
                 .category(requestDto.getCategory())
                 .userId(userId)
+                .tags(requestDto.getTags() != null ? String.join(",", requestDto.getTags()) : "")
                 .views(0)
                 .likes(0)
                 .build();
