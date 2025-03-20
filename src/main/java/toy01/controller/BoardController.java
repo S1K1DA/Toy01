@@ -51,4 +51,31 @@ public class BoardController {
         List<BoardResponseDto> boardList = boardService.getBoardList(category, search, tag, page);
         return ResponseEntity.ok(boardList);
     }
+
+    // 게시글 상세
+    @GetMapping("/detail/{boardNo}")
+    public ResponseEntity<BoardResponseDto> getBoardDetail(@PathVariable("boardNo") Long boardNo) {
+        BoardResponseDto boardDetail = boardService.getBoardDetail(boardNo);
+        return ResponseEntity.ok(boardDetail);
+    }
+
+    @DeleteMapping("/delete/{boardNo}")
+    public ResponseEntity<String> deleteBoard(@PathVariable("boardNo") Long boardNo, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("email") == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        // 세션에서 이메일 가져오기
+        String email = (String) session.getAttribute("email");
+
+        try {
+            boardService.deleteBoard(boardNo, email);
+            return ResponseEntity.ok("게시글이 삭제되었습니다.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(403).body(e.getMessage()); // 권한이 없는 경우 403 응답
+        }
+    }
+
 }

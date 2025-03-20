@@ -15,6 +15,7 @@ public class BoardResponseDto {
     private String content;
     private String category;
     private String nickname;
+    private String email;
     private int views;
     private int likes;
     private List<String> tags;
@@ -29,6 +30,7 @@ public class BoardResponseDto {
         this.views = board.getViews();
         this.likes = board.getLikes();
         this.createdAt = board.getCreatedAt();
+        this.email = user.getEmail();
         this.tags = board.getTags() != null ? Arrays.asList(board.getTags().split(",")) : List.of();
     }
 }

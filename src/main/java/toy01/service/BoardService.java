@@ -45,6 +45,7 @@ public class BoardService {
         return savedBoard.getBoardNo();
     }
 
+    // 게시판 리스트
     public List<BoardResponseDto> getBoardList(String category, String search, String tag, int page) {
         int pageSize = 8;
         int offset = (page - 1) * pageSize;
@@ -67,4 +68,34 @@ public class BoardService {
                 .collect(Collectors.toList());
     }
 
+    // 게시글 상세보기
+    public BoardResponseDto getBoardDetail(Long boardNo) {
+        Board board = boardRepository.findBoardWithUser(boardNo)
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+
+        User user = userRepository.findById(board.getUserId())
+                .orElseThrow(() -> new RuntimeException("작성자를 찾을 수 없습니다."));
+
+        board.setViews(board.getViews() + 1);
+        boardRepository.save(board);
+
+        return new BoardResponseDto(board, user);
+    }
+
+    @Transactional
+    public void deleteBoard(Long boardNo, String email) {
+        Board board = boardRepository.findById(boardNo)
+                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+
+        // 게시글 작성자의 이메일 가져오기
+        User user = userRepository.findById(board.getUserId())
+                .orElseThrow(() -> new RuntimeException("작성자를 찾을 수 없습니다."));
+
+        // 현재 로그인한 유저의 이메일과 비교
+        if (!user.getEmail().equals(email)) {
+            throw new RuntimeException("게시글을 삭제할 권한이 없습니다.");
+        }
+
+        boardRepository.delete(board);
+    }
 }
