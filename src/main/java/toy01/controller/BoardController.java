@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import toy01.dto.request.BoardRequestDto;
+import toy01.dto.response.BoardResponseDto;
 import toy01.service.BoardService;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,5 +38,17 @@ public class BoardController {
         // userId 설정 후 저장
         Long boardNo = boardService.createBoard(requestDto, userId);
         return ResponseEntity.ok(boardNo);
+    }
+
+    // 게시글 조회(리스트)
+    @GetMapping("/list")
+    public ResponseEntity<List<BoardResponseDto>> getBoardList(
+            @RequestParam(required = false, name = "category") String category,
+            @RequestParam(required = false, name = "search") String search,
+            @RequestParam(required = false, name = "tag") String tag,
+            @RequestParam(defaultValue = "1", name = "page") int page
+    ) {
+        List<BoardResponseDto> boardList = boardService.getBoardList(category, search, tag, page);
+        return ResponseEntity.ok(boardList);
     }
 }
