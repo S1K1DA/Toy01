@@ -59,6 +59,7 @@ public class BoardController {
         return ResponseEntity.ok(boardDetail);
     }
 
+    // 게시글 삭제
     @DeleteMapping("/delete/{boardNo}")
     public ResponseEntity<String> deleteBoard(@PathVariable("boardNo") Long boardNo, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -75,6 +76,27 @@ public class BoardController {
             return ResponseEntity.ok("게시글이 삭제되었습니다.");
         } catch (RuntimeException e) {
             return ResponseEntity.status(403).body(e.getMessage()); // 권한이 없는 경우 403 응답
+        }
+    }
+
+    @PutMapping("/edit/{boardNo}")
+    public ResponseEntity<?> updateBoard(
+            @PathVariable("boardNo") Long boardNo,
+            @RequestBody BoardRequestDto requestDto,
+            HttpServletRequest request) {
+
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("email") == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        String email = (String) session.getAttribute("email");
+
+        boolean isUpdated = boardService.updateBoard(boardNo, requestDto, email);
+        if (isUpdated) {
+            return ResponseEntity.ok("게시글이 수정되었습니다.");
+        } else {
+            return ResponseEntity.status(403).body("게시글 수정 권한이 없습니다.");
         }
     }
 

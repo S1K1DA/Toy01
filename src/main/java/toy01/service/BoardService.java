@@ -11,6 +11,7 @@ import toy01.repository.UserRepository;
 import toy01.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,6 +83,7 @@ public class BoardService {
         return new BoardResponseDto(board, user);
     }
 
+    // 게시글 삭제
     @Transactional
     public void deleteBoard(Long boardNo, String email) {
         Board board = boardRepository.findById(boardNo)
@@ -97,5 +99,29 @@ public class BoardService {
         }
 
         boardRepository.delete(board);
+    }
+
+    // 게시글 수정
+    @Transactional
+    public boolean updateBoard(Long boardNo, BoardRequestDto requestDto, String email) {
+        Optional<Board> boardOptional = boardRepository.findById(boardNo);
+        if (boardOptional.isEmpty()) {
+            return false;
+        }
+
+        Board board = boardOptional.get();
+
+        // 게시글 작성자와 로그인된 사용자의 이메일 비교
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty() || !userOptional.get().getId().equals(board.getUserId())) {
+            return false;
+        }
+
+        // 게시글 수정 적용
+        board.setTitle(requestDto.getTitle());
+        board.setContent(requestDto.getContent());
+        board.setTags(String.join(",", requestDto.getTags()));
+
+        return true;
     }
 }
