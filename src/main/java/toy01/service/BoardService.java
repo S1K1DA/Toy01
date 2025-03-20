@@ -117,11 +117,14 @@ public class BoardService {
             return false;
         }
 
+        String tags = (requestDto.getTags() != null) ? String.join(",", requestDto.getTags()) : "";
+
         // 게시글 수정 적용
         board.setTitle(requestDto.getTitle());
         board.setContent(requestDto.getContent());
-        board.setTags(String.join(",", requestDto.getTags()));
+        board.setTags(tags);
 
         return true;
     }
+
 }
