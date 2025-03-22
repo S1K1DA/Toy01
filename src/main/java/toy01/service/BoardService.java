@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import toy01.dto.request.BoardRequestDto;
 import toy01.dto.response.BoardResponseDto;
 import toy01.entity.Board;
+import toy01.entity.BoardLike;
+import toy01.repository.BoardLikeRepository;
 import toy01.repository.BoardRepository;
 import toy01.repository.UserRepository;
 import toy01.entity.User;
@@ -19,7 +21,8 @@ import java.util.stream.Collectors;
 public class BoardService {
 
     private final BoardRepository boardRepository;
-    private final UserRepository userRepository;  // 🔥 유저 정보 조회를 위해 추가
+    private final UserRepository userRepository;
+    private final BoardLikeRepository boardLikeRepository;
 
     // 이메일로 userId 가져오기
     public Long getUserIdByEmail(String email) {
@@ -127,4 +130,31 @@ public class BoardService {
         return true;
     }
 
+    @Transactional
+    public boolean toggleLike(Long userId, Long boardNo) {
+        // 게시글 조회
+        Board board = boardRepository.findById(boardNo)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
+
+        // 사용자가 이미 좋아요를 눌렀는지 확인
+        Optional<BoardLike> existingLike = boardLikeRepository.findByUserIdAndBoard_BoardNo(userId, boardNo);
+
+        if (existingLike.isPresent()) {
+            // 좋아요 취소 (삭제)
+            boardLikeRepository.deleteByUserIdAndBoard_BoardNo(userId, boardNo);
+            board.setLikes(board.getLikes() - 1);
+            boardRepository.save(board);
+            return false; // 좋아요 취소됨
+        } else {
+            // 좋아요 추가
+            BoardLike boardLike = BoardLike.builder()
+                    .user(User.builder().id(userId).build())
+                    .board(board)
+                    .build();
+            boardLikeRepository.save(boardLike);
+            board.setLikes(board.getLikes() + 1);
+            boardRepository.save(board);
+            return true; // 좋아요 추가됨
+        }
+    }
 }

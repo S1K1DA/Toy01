@@ -10,6 +10,7 @@ import toy01.dto.response.BoardResponseDto;
 import toy01.service.BoardService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -100,4 +101,30 @@ public class BoardController {
         }
     }
 
+    // 게시글 좋아요 토글
+    @PostMapping("/like/{boardNo}")
+    public ResponseEntity<?> toggleLike(@PathVariable("boardNo") Long boardNo, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("email") == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        // 세션에서 이메일 가져오기
+        String email = (String) session.getAttribute("email");
+        Long userId = boardService.getUserIdByEmail(email);
+
+        if (userId == null) {
+            return ResponseEntity.status(400).body("유저 정보가 올바르지 않습니다.");
+        }
+
+        // 좋아요 토글
+        boolean isLiked = boardService.toggleLike(userId, boardNo);
+
+        if (isLiked) {
+            return ResponseEntity.ok(Map.of("liked", true));
+        } else {
+            return ResponseEntity.ok(Map.of("liked", false));
+        }
+    }
 }
