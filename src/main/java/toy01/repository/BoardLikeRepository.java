@@ -1,6 +1,7 @@
 package toy01.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import toy01.entity.Board;
 import toy01.entity.BoardLike;
 
 import java.util.Optional;
@@ -12,4 +13,8 @@ public interface BoardLikeRepository extends JpaRepository<BoardLike, Long> {
     boolean existsByUserIdAndBoard_BoardNo(Long userId, Long boardNo);
 
     void deleteByUserIdAndBoard_BoardNo(Long userId, Long boardNo);
+
+    // 게시글 삭제시
+    void deleteByBoard(Board board);
+
 }

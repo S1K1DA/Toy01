@@ -9,6 +9,7 @@ import toy01.entity.Board;
 import toy01.entity.BoardLike;
 import toy01.repository.BoardLikeRepository;
 import toy01.repository.BoardRepository;
+import toy01.repository.CommentRepository;
 import toy01.repository.UserRepository;
 import toy01.entity.User;
 
@@ -23,6 +24,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     private final BoardLikeRepository boardLikeRepository;
+    private final CommentRepository commentRepository;
 
     // 이메일로 userId 가져오기
     public Long getUserIdByEmail(String email) {
@@ -100,6 +102,9 @@ public class BoardService {
         if (!user.getEmail().equals(email)) {
             throw new RuntimeException("게시글을 삭제할 권한이 없습니다.");
         }
+        // 게시글 삭제시 좋아요,댓글 삭제후 삭제
+        boardLikeRepository.deleteByBoard(board);
+        commentRepository.deleteByBoard(board);
 
         boardRepository.delete(board);
     }
