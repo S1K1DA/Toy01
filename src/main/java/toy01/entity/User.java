@@ -30,11 +30,21 @@ public class User {
 
     private String profileImage;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole userRole = UserRole.NORMAL;
+
     public void updateProfile(String nickname, String email,String name, String profileImage) {
         this.nickname = nickname;
         this.email = email;
         this.name = name;
         this.profileImage = profileImage;
+    }
+
+    public enum UserRole {
+        NORMAL,   // 일반
+        PREMIUM,  // 1개월권
+        FREE      // 무제한권
     }
 
 }
